@@ -1,3 +1,5 @@
+import { Prisma } from '@prisma/client'
+
 interface TicketmasterVenue {
   name: string;
   city: {
@@ -34,6 +36,18 @@ interface TicketmasterEvent {
   description?: string;
 }
 
+interface TicketmasterResponse {
+  _embedded?: {
+    events: TicketmasterEvent[];
+  };
+  page: {
+    totalElements: number;
+    totalPages: number;
+    size: number;
+    number: number;
+  };
+}
+
 export class TicketmasterService {
   static async fetchGermanConcerts(page: number = 0, dateRange?: { startDateTime: string, endDateTime: string }) {
     const API_KEY = process.env.TICKETMASTER_API_KEY
@@ -57,7 +71,7 @@ export class TicketmasterService {
         throw new Error(`Ticketmaster API error: ${response.status} - ${response.statusText}`)
       }
 
-      const data = await response.json()
+      const data: TicketmasterResponse = await response.json()
       return data
     } catch (error) {
       console.error('Error fetching from Ticketmaster:', error)
@@ -71,6 +85,15 @@ export class TicketmasterService {
     
     // Get the best image (prefer 16:9 ratio if available)
     const image = event.images?.find(img => img.ratio === '16_9') || event.images?.[0]
+    
+    // Transform coordinates to Prisma-compatible JSON
+    let coordinates = null
+    if (venue.location) {
+      coordinates = {
+        latitude: parseFloat(venue.location.latitude),
+        longitude: parseFloat(venue.location.longitude)
+      }
+    }
 
     return {
       externalId: event.id,
@@ -81,10 +104,7 @@ export class TicketmasterService {
       city: venue.city.name,
       description: event.description || `Live in concert at ${venue.name}`,
       imageUrl: image?.url || null,
-      coordinates: venue.location ? {
-        latitude: parseFloat(venue.location.latitude),
-        longitude: parseFloat(venue.location.longitude),
-      } : null,
+      coordinates: coordinates as Prisma.JsonValue,
       source: 'ticketmaster' as const,
       sourceUrl: `https://www.ticketmaster.de/event/${event.id}`
     }

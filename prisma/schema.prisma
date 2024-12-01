@@ -57,7 +57,7 @@ model VerificationToken {
 
 model Concert {
   id          String   @id @default(cuid())
-  externalId  String?  
+  externalId  String?
   title       String
   artist      String
   date        DateTime
@@ -65,9 +65,8 @@ model Concert {
   city        String
   description String
   imageUrl    String?
-  price       Float?
-  coordinates Json?    // This will store the latitude/longitude
-  source      String?  // 'ticketmaster' or null for manual entries
+  coordinates Json?
+  source      String?
   sourceUrl   String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

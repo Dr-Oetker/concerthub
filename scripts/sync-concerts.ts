@@ -82,14 +82,8 @@ async function syncConcerts() {
                 // Wait a bit between database operations
                 await wait(100)
 
-                const existingConcert = await prisma.concert.findFirst({
-                  where: {
-                    externalId: transformedEvent.externalId,
-                    source: 'ticketmaster'
-                  }
-                })
-
-                const concertData = {
+                // Prepare the data for Prisma with proper typing
+                const concertData: Prisma.ConcertCreateInput = {
                   title: transformedEvent.title,
                   artist: transformedEvent.artist,
                   date: transformedEvent.date,
@@ -97,13 +91,18 @@ async function syncConcerts() {
                   city: transformedEvent.city,
                   description: transformedEvent.description,
                   imageUrl: transformedEvent.imageUrl,
-                  coordinates: transformedEvent.coordinates 
-                    ? (transformedEvent.coordinates as Prisma.InputJsonValue)
-                    : Prisma.JsonNull,
+                  coordinates: transformedEvent.coordinates,
                   source: transformedEvent.source,
                   sourceUrl: transformedEvent.sourceUrl,
                   externalId: transformedEvent.externalId,
                 }
+
+                const existingConcert = await prisma.concert.findFirst({
+                  where: {
+                    externalId: transformedEvent.externalId,
+                    source: 'ticketmaster'
+                  }
+                })
 
                 if (existingConcert) {
                   await prisma.concert.update({
@@ -121,7 +120,7 @@ async function syncConcerts() {
                 }
               } catch (eventError) {
                 totalErrors++
-                console.error(`Error processing event:`, eventError)
+                console.error(`Error processing event: ${event.name}`, eventError)
                 await wait(2000) // Wait longer after an error
               }
             }
