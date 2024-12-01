@@ -20,8 +20,13 @@ export function LoadMoreButton({ currentPage }: LoadMoreButtonProps) {
     // Get current scroll position
     const currentPosition = window.scrollY
 
-    // Create new URLSearchParams with next page
-    const params = new URLSearchParams(searchParams)
+    // Create new URLSearchParams using existing params
+    const params = new URLSearchParams()
+    // Copy over existing params
+    searchParams.forEach((value, key) => {
+      params.set(key, value)
+    })
+    // Set the new page number
     params.set('page', nextPage.toString())
     
     try {
