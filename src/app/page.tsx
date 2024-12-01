@@ -2,48 +2,50 @@ import { Suspense } from "react"
 import { prisma } from "@/lib/prisma"
 import { ConcertCard } from "@/components/concerts/concert-card"
 import { LoadMoreButton } from "@/components/concerts/load-more-button"
-import { formatDistanceToNow } from "date-fns"
 
 async function getConcerts(page: number = 1, pageSize: number = 5) {
   try {
-    // Calculate how many concerts to fetch (page * pageSize gives us accumulated amount)
     const take = page * pageSize;
     
+    console.log('Fetching concerts with params:', { page, take }) // Debug log
+
     const total = await prisma.concert.count({
       where: {
         date: {
-          gte: new Date() // Only future concerts
+          gte: new Date()
         }
       }
-    });
+    })
+
+    console.log('Total concerts found:', total) // Debug log
 
     const concerts = await prisma.concert.findMany({
       where: {
         date: {
-          gte: new Date() // Only future concerts
+          gte: new Date()
         }
       },
       orderBy: {
         date: 'asc'
       },
       take: take,
-      skip: 0 // Always start from beginning as we're accumulating
-    });
+      skip: 0
+    })
 
-    console.log(`Found ${concerts.length} concerts out of ${total} total`);
+    console.log('Fetched concerts:', concerts.length) // Debug log
 
     return {
       concerts,
       hasMore: concerts.length < total,
       total
-    };
+    }
   } catch (error) {
-    console.error('Error fetching concerts:', error);
+    console.error('Error fetching concerts:', error)
     return {
       concerts: [],
       hasMore: false,
       total: 0
-    };
+    }
   }
 }
 
@@ -52,8 +54,8 @@ export default async function HomePage({
 }: {
   searchParams: { page?: string }
 }) {
-  const currentPage = Number(searchParams.page) || 1;
-  const { concerts, hasMore, total } = await getConcerts(currentPage);
+  const currentPage = Number(searchParams.page) || 1
+  const { concerts, hasMore, total } = await getConcerts(currentPage)
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -63,19 +65,19 @@ export default async function HomePage({
             Upcoming Concerts
           </h2>
           <p className="text-muted-foreground">
-            Showing {concerts.length} of {total} upcoming concerts
+            {concerts.length > 0 
+              ? `Showing ${concerts.length} of ${total} upcoming concerts`
+              : 'No upcoming concerts found'}
           </p>
         </div>
         
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {concerts.map((concert) => (
             <Suspense key={concert.id} fallback={<div>Loading...</div>}>
-              <div className="concert-card">
-                <ConcertCard concert={{
-                  ...concert,
-                  date: new Date(concert.date), // Ensure date is properly converted
-                }} />
-              </div>
+              <ConcertCard concert={{
+                ...concert,
+                date: new Date(concert.date),
+              }} />
             </Suspense>
           ))}
         </div>
@@ -87,14 +89,14 @@ export default async function HomePage({
         )}
 
         {!hasMore && concerts.length > 0 && (
-          <p className="text-muted-foreground">
+          <p className="text-center text-muted-foreground pt-8">
             You&apos;ve reached the end of the list
           </p>
         )}
 
         {concerts.length === 0 && (
           <p className="text-center text-muted-foreground">
-            No upcoming concerts found
+            No concerts found in the database
           </p>
         )}
       </section>
