@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { formatDistanceToNow, format } from "date-fns"
 import { CalendarDays, MapPin, Music2 } from "lucide-react"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
@@ -22,11 +23,16 @@ export function ConcertCard({ concert }: ConcertCardProps) {
     <Card className="overflow-hidden flex flex-col h-full">
       {concert.imageUrl && (
         <div className="aspect-video w-full overflow-hidden">
-          <img
-            src={concert.imageUrl}
-            alt={concert.title}
-            className="w-full h-full object-cover"
-          />
+          {concert.imageUrl && (
+          <div className="aspect-video w-full overflow-hidden relative">
+            <Image
+              src={concert.imageUrl}
+              alt={concert.title}
+              fill
+              className="object-cover"
+            />
+          </div>
+        )}
         </div>
       )}
       

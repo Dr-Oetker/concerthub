@@ -14,8 +14,8 @@ export default function LoginPage() {
           <h1 className="text-3xl font-bold tracking-tight">
             Welcome back
           </h1>
-          <p className="text-sm text-muted-foreground">
-            Don't have an account?{" "}
+          <p className="text-center text-sm text-muted-foreground">
+            Don&apos;t have an account?{" "}
             <Link href="/register" className="text-primary hover:underline">
               Register
             </Link>

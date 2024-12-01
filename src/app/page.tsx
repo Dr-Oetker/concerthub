@@ -87,8 +87,8 @@ export default async function HomePage({
         )}
 
         {!hasMore && concerts.length > 0 && (
-          <p className="text-center text-muted-foreground pt-8">
-            You've reached the end of the list
+          <p className="text-muted-foreground">
+            You&apos;ve reached the end of the list
           </p>
         )}
 
