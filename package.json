@@ -41,5 +41,7 @@
     "lint": "next lint",
     "sync": "ts-node scripts/sync-concerts.ts"
   }
-  }
+
 }
+
+
